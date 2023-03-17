@@ -5,14 +5,14 @@ PassRegistry *PassRegistry::get_pass_registry() {
     return &PassRegistryObj;
 }
 
-void PassRegistry::register_pass(const PassInfo &pi) {
+void PassRegistry::register_pass(const std::string &name, std::unique_ptr<Pass> &&pass) {
     std::lock_guard<std::mutex> _(lock);
-    pass_map[pi.get_pass_name()] = pi.create_pass(); //<- 注意不要有同名的 pass
+    pass_map[name] = std::move(pass); //<- 注意不要有同名的 pass
 }
 
-void PassRegistry::unregister_pass(const PassInfo &pi) {
+void PassRegistry::unregister_pass(const std::string &name) {
     std::lock_guard<std::mutex> _(lock);
-    pass_map.erase(pi.get_pass_name());
+    pass_map.erase(name);
 }
 
 Pass &PassRegistry::invoke(const std::string &pass_name) const {
